@@ -155,6 +155,7 @@ export default class Tools extends Module {
     return {
       SHORTCUT: 'shortcut',
       TOOLBOX: 'toolbox',
+      USEDKEYS: 'usedKeys',
       ENABLED_INLINE_TOOLS: 'inlineToolbar',
       CONFIG: 'config',
     };

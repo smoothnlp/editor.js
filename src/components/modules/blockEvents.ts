@@ -128,6 +128,12 @@ export default class BlockEvents extends Module {
    * @param {KeyboardEvent} event - tab keydown event
    */
   public tabPressed(event): void {
+    if (this.checkProtectedKey('TAB')) {
+      event.preventDefault();
+
+      return;
+    }
+
     /**
      * Clear blocks selection by tab
      */
@@ -216,11 +222,34 @@ export default class BlockEvents extends Module {
   }
 
   /**
+   * 在快捷键冲突的情况下，块如果占用相同的键并声明，块优先级可以高于全局
+   *
+   * @param {string}key - keyboard key name
+   */
+  private checkProtectedKey(key: string): boolean {
+    
+    key = key.toUpperCase();
+    const { Tools, BlockManager } = this.Editor;
+    const blockConfig = Tools.getToolSettings(BlockManager.currentBlock.name);
+    // console.log(key,blockConfig,blockConfig.usedKeys.toUpperCase().includes(key));
+    if (blockConfig.usedKeys) {
+      return blockConfig.usedKeys.toUpperCase().includes(key);
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * ENTER pressed on block
    *
    * @param {KeyboardEvent} event - keydown
    */
   private enter(event: KeyboardEvent): void {
+    if (this.checkProtectedKey('ENTER')) {
+      event.preventDefault();
+
+      return;
+    }
     const { BlockManager, Tools, UI } = this.Editor;
     const currentBlock = BlockManager.currentBlock;
     const tool = Tools.available[currentBlock.name];
@@ -289,6 +318,10 @@ export default class BlockEvents extends Module {
    * @param {KeyboardEvent} event - keydown
    */
   private backspace(event: KeyboardEvent): void {
+    if (this.checkProtectedKey('BACKSPACE')) {
+      console.log('checkProtectedKey');
+      return;
+    }
     const { BlockManager, BlockSelection, Caret } = this.Editor;
     const currentBlock = BlockManager.currentBlock;
     const tool = this.Editor.Tools.available[currentBlock.name];

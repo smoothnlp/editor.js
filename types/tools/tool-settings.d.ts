@@ -21,6 +21,7 @@ export interface ToolboxConfig {
  */
 export interface ToolSettings {
 
+
   /**
    * Tool's class
    */
@@ -41,6 +42,11 @@ export interface ToolSettings {
    * Define shortcut that will render Tool
    */
   shortcut?: string;
+
+   /**
+   * Define the key of keyboard , block need to be used, but not want to conflict to editor's pre-set key .
+   */
+  usedKeys?: string;
 
   /**
    * Tool's Toolbox settings

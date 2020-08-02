@@ -17299,9 +17299,15 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }, {
       key: "tabPressed",
       value: function tabPressed(event) {
+        if (this.checkProtectedKey('TAB')) {
+          event.preventDefault();
+          return;
+        }
         /**
          * Clear blocks selection by tab
          */
+
+
         this.Editor.BlockSelection.clearSelection(event);
         var _this$Editor = this.Editor,
             BlockManager = _this$Editor.BlockManager,
@@ -17396,6 +17402,27 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         BlockSelection.clearSelection(event);
       }
       /**
+       * 在快捷键冲突的情况下，块如果占用相同的键并声明，块优先级可以高于全局
+       *
+       * @param {string}key - keyboard key name
+       */
+
+    }, {
+      key: "checkProtectedKey",
+      value: function checkProtectedKey(key) {
+        key = key.toUpperCase();
+        var _this$Editor3 = this.Editor,
+            Tools = _this$Editor3.Tools,
+            BlockManager = _this$Editor3.BlockManager;
+        var blockConfig = Tools.getToolSettings(BlockManager.currentBlock.name); // console.log(key,blockConfig,blockConfig.usedKeys.toUpperCase().includes(key));
+
+        if (blockConfig.usedKeys) {
+          return blockConfig.usedKeys.toUpperCase().includes(key);
+        } else {
+          return false;
+        }
+      }
+      /**
        * ENTER pressed on block
        *
        * @param {KeyboardEvent} event - keydown
@@ -17404,10 +17431,15 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }, {
       key: "enter",
       value: function enter(event) {
-        var _this$Editor3 = this.Editor,
-            BlockManager = _this$Editor3.BlockManager,
-            Tools = _this$Editor3.Tools,
-            UI = _this$Editor3.UI;
+        if (this.checkProtectedKey('ENTER')) {
+          event.preventDefault();
+          return;
+        }
+
+        var _this$Editor4 = this.Editor,
+            BlockManager = _this$Editor4.BlockManager,
+            Tools = _this$Editor4.Tools,
+            UI = _this$Editor4.UI;
         var currentBlock = BlockManager.currentBlock;
         var tool = Tools.available[currentBlock.name];
         /**
@@ -17479,10 +17511,15 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }, {
       key: "backspace",
       value: function backspace(event) {
-        var _this$Editor4 = this.Editor,
-            BlockManager = _this$Editor4.BlockManager,
-            BlockSelection = _this$Editor4.BlockSelection,
-            Caret = _this$Editor4.Caret;
+        if (this.checkProtectedKey('BACKSPACE')) {
+          console.log('checkProtectedKey');
+          return;
+        }
+
+        var _this$Editor5 = this.Editor,
+            BlockManager = _this$Editor5.BlockManager,
+            BlockSelection = _this$Editor5.BlockSelection,
+            Caret = _this$Editor5.Caret;
         var currentBlock = BlockManager.currentBlock;
         var tool = this.Editor.Tools.available[currentBlock.name];
         /**
@@ -17544,10 +17581,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }, {
       key: "mergeBlocks",
       value: function mergeBlocks() {
-        var _this$Editor5 = this.Editor,
-            BlockManager = _this$Editor5.BlockManager,
-            Caret = _this$Editor5.Caret,
-            Toolbar = _this$Editor5.Toolbar;
+        var _this$Editor6 = this.Editor,
+            BlockManager = _this$Editor6.BlockManager,
+            Caret = _this$Editor6.Caret,
+            Toolbar = _this$Editor6.Toolbar;
         var targetBlock = BlockManager.previousBlock;
         var blockToMerge = BlockManager.currentBlock;
         /**
@@ -26646,6 +26683,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         return {
           SHORTCUT: 'shortcut',
           TOOLBOX: 'toolbox',
+          USEDKEYS: 'usedKeys',
           ENABLED_INLINE_TOOLS: 'inlineToolbar',
           CONFIG: 'config'
         };

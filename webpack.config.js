@@ -20,6 +20,7 @@ module.exports = (env, argv) => {
   const NODE_ENV = argv.mode || 'development';
   const VERSION = process.env.VERSION || pkg.version;
 
+
   /**
    * Plugins for bundle
    *
@@ -101,9 +102,10 @@ module.exports = (env, argv) => {
 
     devServer: {
       contentBase: __dirname,
-      compress: true,
+      compress: false,
       port: 9000,
     },
+
     devtool: NODE_ENV === 'development' ? 'source-map' : false,
 
     optimization: {
