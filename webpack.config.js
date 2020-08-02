@@ -99,6 +99,11 @@ module.exports = (env, argv) => {
       ],
     },
 
+    devServer: {
+      contentBase: __dirname,
+      compress: true,
+      port: 9000,
+    },
     devtool: NODE_ENV === 'development' ? 'source-map' : false,
 
     optimization: {

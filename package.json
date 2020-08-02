@@ -16,6 +16,7 @@
     "build:win": "rimraf dist && yarn svg:win && yarn build:prod",
     "build:dev": "webpack --mode development --progress --display-error-details --display-entrypoints --watch",
     "build:prod": "webpack --mode production",
+    "start:dev": "webpack-dev-server",
     "lint": "eslint src/ --ext .ts",
     "lint:errors": "eslint src/ --ext .ts --quiet",
     "lint:fix": "eslint src/ --ext .ts --fix",
@@ -67,7 +68,8 @@
     "tslint": "^6.1.1",
     "typescript": "3.8.3",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "3.11.0"
   },
   "collective": {
     "type": "opencollective",
