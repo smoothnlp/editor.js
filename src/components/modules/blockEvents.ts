@@ -129,7 +129,7 @@ export default class BlockEvents extends Module {
    */
   public tabPressed(event): void {
     if (this.checkProtectedKey('TAB')) {
-      event.preventDefault();
+      // event.preventDefault();
 
       return;
     }
@@ -227,11 +227,10 @@ export default class BlockEvents extends Module {
    * @param {string}key - keyboard key name
    */
   private checkProtectedKey(key: string): boolean {
-    
     key = key.toUpperCase();
     const { Tools, BlockManager } = this.Editor;
     const blockConfig = Tools.getToolSettings(BlockManager.currentBlock.name);
-    // console.log(key,blockConfig,blockConfig.usedKeys.toUpperCase().includes(key));
+
     if (blockConfig.usedKeys) {
       return blockConfig.usedKeys.toUpperCase().includes(key);
     } else {
@@ -246,8 +245,7 @@ export default class BlockEvents extends Module {
    */
   private enter(event: KeyboardEvent): void {
     if (this.checkProtectedKey('ENTER')) {
-      event.preventDefault();
-
+      // event.preventDefault();
       return;
     }
     const { BlockManager, Tools, UI } = this.Editor;
@@ -319,7 +317,7 @@ export default class BlockEvents extends Module {
    */
   private backspace(event: KeyboardEvent): void {
     if (this.checkProtectedKey('BACKSPACE')) {
-      console.log('checkProtectedKey');
+      // console.log('checkProtectedKey');
       return;
     }
     const { BlockManager, BlockSelection, Caret } = this.Editor;

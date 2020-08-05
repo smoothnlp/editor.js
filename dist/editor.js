@@ -15308,6 +15308,8 @@ var map = {
 	"./api/saver.ts": "./src/components/modules/api/saver.ts",
 	"./api/selection": "./src/components/modules/api/selection.ts",
 	"./api/selection.ts": "./src/components/modules/api/selection.ts",
+	"./api/smooth": "./src/components/modules/api/smooth.ts",
+	"./api/smooth.ts": "./src/components/modules/api/smooth.ts",
 	"./api/styles": "./src/components/modules/api/styles.ts",
 	"./api/styles.ts": "./src/components/modules/api/styles.ts",
 	"./api/toolbar": "./src/components/modules/api/toolbar.ts",
@@ -15657,6 +15659,94 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
         this.insert();
       }
+      /**
+       * Call Block Manager method that merge two Blocks
+       *
+       */
+
+    }, {
+      key: "merge",
+      value: function merge() {
+        var BlockManager = this.Editor.BlockManager;
+        var Caret = this.Editor.Caret;
+        var Toolbar = this.Editor.Toolbar;
+        var targetBlock = BlockManager.previousBlock;
+        var blockToMerge = BlockManager.currentBlock;
+        /**
+         * Blocks that can be merged:
+         * 1) with the same Name
+         * 2) Tool has 'merge' method
+         *
+         * other case will handle as usual ARROW LEFT behaviour
+         */
+
+        console.log(blockToMerge, targetBlock);
+
+        if (blockToMerge.name !== targetBlock.name || !targetBlock.mergeable) {
+          /** If target Block doesn't contain inputs or empty, remove it */
+          if (targetBlock.inputs.length === 0 || targetBlock.isEmpty) {
+            BlockManager.removeBlock(BlockManager.currentBlockIndex - 1);
+            Caret.setToBlock(BlockManager.currentBlock);
+            Toolbar.close();
+            return;
+          }
+
+          if (Caret.navigatePrevious()) {
+            Toolbar.close();
+          }
+
+          return;
+        }
+
+        Caret.createShadow(targetBlock.pluginsContent);
+        BlockManager.mergeBlocks(targetBlock, blockToMerge).then(function () {
+          /** Restore caret position after merge */
+          Caret.restoreCaret(targetBlock.pluginsContent);
+          targetBlock.pluginsContent.normalize();
+          Toolbar.close();
+        });
+      }
+      /**
+       * Call Block Manager method that split one block to two Blocks
+       *
+       */
+
+    }, {
+      key: "split",
+      value: function split() {
+        console.log('split', this.Editor);
+        var newCurrent = this.Editor.BlockManager.currentBlock;
+        /**
+         * If enter has been pressed at the start of the text, just insert paragraph Block above
+         */
+
+        if (this.Editor.Caret.isAtStart && !this.Editor.BlockManager.currentBlock.hasMedia) {
+          this.Editor.BlockManager.insertInitialBlockAtIndex(this.Editor.BlockManager.currentBlockIndex);
+        } else {
+          /**
+           * Split the Current Block into two blocks
+           * Renew local current node after split
+           */
+          newCurrent = this.Editor.BlockManager.split();
+        }
+
+        this.Editor.Caret.setToBlock(newCurrent);
+        /**
+         * If new Block is empty
+         */
+
+        if (this.Editor.Tools.isInitial(newCurrent.tool) && newCurrent.isEmpty) {
+          /**
+           * Show Toolbar
+           */
+          this.Editor.Toolbar.open(false);
+          /**
+           * Show Plus Button
+           */
+
+          this.Editor.Toolbar.plusButton.show();
+        }
+      }
     }, {
       key: "methods",
       get: function get() {
@@ -15697,7 +15787,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           insertNewBlock: function insertNewBlock() {
             return _this2.insertNewBlock();
           },
-          insert: this.insert
+          insert: this.insert,
+          split: function split() {
+            return _this2.split();
+          },
+          merge: function merge() {
+            return _this2.merge();
+          }
         };
       }
     }]);
@@ -16812,6 +16908,170 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
+/***/ "./src/components/modules/api/smooth.ts":
+/*!**********************************************!*\
+  !*** ./src/components/modules/api/smooth.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
+  if (true) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports, __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js"), __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js"), __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/inherits.js"), __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js"), __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/getPrototypeOf.js"), __webpack_require__(/*! ../../__module */ "./src/components/__module.ts")], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else { var mod; }
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports, _classCallCheck2, _createClass2, _inherits2, _possibleConstructorReturn2, _getPrototypeOf2, _module) {
+  "use strict";
+
+  var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ "./node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports["default"] = void 0;
+  _classCallCheck2 = _interopRequireDefault(_classCallCheck2);
+  _createClass2 = _interopRequireDefault(_createClass2);
+  _inherits2 = _interopRequireDefault(_inherits2);
+  _possibleConstructorReturn2 = _interopRequireDefault(_possibleConstructorReturn2);
+  _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf2);
+  _module = _interopRequireDefault(_module);
+
+  function _createSuper(Derived) { return function () { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+  function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+  /**
+   * @class BlocksAPI
+   * provides with methods working with Block
+   */
+  var SmoothAPI = /*#__PURE__*/function (_Module) {
+    (0, _inherits2["default"])(SmoothAPI, _Module);
+
+    var _super = _createSuper(SmoothAPI);
+
+    function SmoothAPI() {
+      (0, _classCallCheck2["default"])(this, SmoothAPI);
+      return _super.apply(this, arguments);
+    }
+
+    (0, _createClass2["default"])(SmoothAPI, [{
+      key: "mergeBlock",
+
+      /**
+       * Call Block Manager method that merge two Blocks
+       *
+       */
+      value: function mergeBlock() {
+        var _this$Editor = this.Editor,
+            BlockManager = _this$Editor.BlockManager,
+            Caret = _this$Editor.Caret,
+            Toolbar = _this$Editor.Toolbar;
+        var targetBlock = BlockManager.previousBlock;
+        var blockToMerge = BlockManager.currentBlock;
+        /**
+         * Blocks that can be merged:
+         * 1) with the same Name
+         * 2) Tool has 'merge' method
+         *
+         * other case will handle as usual ARROW LEFT behaviour
+         */
+
+        if (blockToMerge.name !== targetBlock.name || !targetBlock.mergeable) {
+          /** If target Block doesn't contain inputs or empty, remove it */
+          if (targetBlock.inputs.length === 0 || targetBlock.isEmpty) {
+            BlockManager.removeBlock(BlockManager.currentBlockIndex - 1);
+            Caret.setToBlock(BlockManager.currentBlock);
+            Toolbar.close();
+            return;
+          }
+
+          if (Caret.navigatePrevious()) {
+            Toolbar.close();
+          }
+
+          return;
+        }
+
+        Caret.createShadow(targetBlock.pluginsContent);
+        BlockManager.mergeBlocks(targetBlock, blockToMerge).then(function () {
+          /** Restore caret position after merge */
+          Caret.restoreCaret(targetBlock.pluginsContent);
+          targetBlock.pluginsContent.normalize();
+          Toolbar.close();
+        });
+      }
+      /**
+       * Call Block Manager method that split one block to two Blocks
+       *
+       */
+
+    }, {
+      key: "splitBlock",
+      value: function splitBlock() {
+        var newCurrent = this.Editor.BlockManager.currentBlock;
+        /**
+         * If enter has been pressed at the start of the text, just insert paragraph Block above
+         */
+
+        if (this.Editor.Caret.isAtStart && !this.Editor.BlockManager.currentBlock.hasMedia) {
+          this.Editor.BlockManager.insertInitialBlockAtIndex(this.Editor.BlockManager.currentBlockIndex);
+        } else {
+          /**
+           * Split the Current Block into two blocks
+           * Renew local current node after split
+           */
+          newCurrent = this.Editor.BlockManager.split();
+        }
+
+        this.Editor.Caret.setToBlock(newCurrent);
+        /**
+         * If new Block is empty
+         */
+
+        if (this.Editor.Tools.isInitial(newCurrent.tool) && newCurrent.isEmpty) {
+          /**
+           * Show Toolbar
+           */
+          this.Editor.Toolbar.open(false);
+          /**
+           * Show Plus Button
+           */
+
+          this.Editor.Toolbar.plusButton.show();
+        }
+      }
+    }, {
+      key: "methods",
+
+      /**
+       * Available methods
+       *
+       */
+      get: function get() {
+        var _this = this;
+
+        return {
+          mergeBlock: function mergeBlock() {
+            return _this.mergeBlock();
+          },
+          splitBlock: function splitBlock() {
+            return _this.splitBlock();
+          }
+        };
+      }
+    }]);
+    return SmoothAPI;
+  }(_module["default"]);
+
+  _exports["default"] = SmoothAPI;
+  SmoothAPI.displayName = "SmoothAPI";
+  module.exports = exports.default;
+});
+
+/***/ }),
+
 /***/ "./src/components/modules/api/styles.ts":
 /*!**********************************************!*\
   !*** ./src/components/modules/api/styles.ts ***!
@@ -17300,7 +17560,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       key: "tabPressed",
       value: function tabPressed(event) {
         if (this.checkProtectedKey('TAB')) {
-          event.preventDefault();
+          // event.preventDefault();
           return;
         }
         /**
@@ -17432,7 +17692,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       key: "enter",
       value: function enter(event) {
         if (this.checkProtectedKey('ENTER')) {
-          event.preventDefault();
+          // event.preventDefault();
           return;
         }
 
@@ -17512,7 +17772,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       key: "backspace",
       value: function backspace(event) {
         if (this.checkProtectedKey('BACKSPACE')) {
-          console.log('checkProtectedKey');
+          // console.log('checkProtectedKey');
           return;
         }
 

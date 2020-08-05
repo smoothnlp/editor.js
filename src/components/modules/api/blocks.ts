@@ -224,4 +224,94 @@ export default class BlocksAPI extends Module {
       'Use blocks.insert() instead.', 'warn');
     this.insert();
   }
+
+  /**
+   * Call Block Manager method that merge two Blocks
+   *
+   */
+  public merge(): void {
+    const BlockManager = this.Editor.BlockManager;
+    const Caret = this.Editor.Caret;
+    const Toolbar = this.Editor.Toolbar;
+    const targetBlock = BlockManager.previousBlock;
+    const blockToMerge = BlockManager.currentBlock;
+
+    /**
+     * Blocks that can be merged:
+     * 1) with the same Name
+     * 2) Tool has 'merge' method
+     *
+     * other case will handle as usual ARROW LEFT behaviour
+     */
+    console.log(blockToMerge, targetBlock);
+
+    if (blockToMerge.name !== targetBlock.name || !targetBlock.mergeable) {
+      /** If target Block doesn't contain inputs or empty, remove it */
+      if (targetBlock.inputs.length === 0 || targetBlock.isEmpty) {
+        BlockManager.removeBlock(BlockManager.currentBlockIndex - 1);
+        Caret.setToBlock(BlockManager.currentBlock);
+        Toolbar.close();
+
+        return;
+      }
+
+      if (Caret.navigatePrevious()) {
+        Toolbar.close();
+      }
+
+      return;
+    }
+    Caret.setToBlock(
+      BlockManager.currentBlock, Caret.positions.START
+    );
+
+    Caret.createShadow(targetBlock.pluginsContent);
+    console.log(targetBlock.pluginsContent);
+
+    BlockManager.mergeBlocks(targetBlock, blockToMerge)
+      .then(() => {
+        /** Restore caret position after merge */
+        Caret.restoreCaret(targetBlock.pluginsContent as HTMLElement);
+        targetBlock.pluginsContent.normalize();
+        Toolbar.close();
+      });
+  }
+
+  /**
+   * Call Block Manager method that split one block to two Blocks
+   *
+   */
+  public split(): void {
+    console.log('split', this.Editor);
+    let newCurrent = this.Editor.BlockManager.currentBlock;
+
+    /**
+     * If enter has been pressed at the start of the text, just insert paragraph Block above
+     */
+    if (this.Editor.Caret.isAtStart && !this.Editor.BlockManager.currentBlock.hasMedia) {
+      this.Editor.BlockManager.insertInitialBlockAtIndex(this.Editor.BlockManager.currentBlockIndex);
+    } else {
+      /**
+       * Split the Current Block into two blocks
+       * Renew local current node after split
+       */
+      newCurrent = this.Editor.BlockManager.split();
+    }
+
+    this.Editor.Caret.setToBlock(newCurrent);
+    /**
+     * If new Block is empty
+     */
+    if (this.Editor.Tools.isInitial(newCurrent.tool) && newCurrent.isEmpty) {
+      /**
+       * Show Toolbar
+       */
+      this.Editor.Toolbar.open(false);
+
+      /**
+       * Show Plus Button
+       */
+      this.Editor.Toolbar.plusButton.show();
+    }
+  }
 }
