@@ -1,7 +1,7 @@
 import Module from '../__module';
 /* eslint-disable import/no-duplicates */
 import * as _ from '../utils';
-import {ChainData, generateUuidv4} from '../utils';
+import { ChainData, generateUuidv4 } from '../utils';
 import { BlockToolConstructable, OutputBlockData } from '../../../types';
 
 /**

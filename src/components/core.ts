@@ -2,7 +2,7 @@ import $ from './dom';
 // eslint-disable-next-line import/no-duplicates
 import * as _ from './utils';
 // eslint-disable-next-line import/no-duplicates
-import {generateUuidv4, LogLevels} from './utils';
+import { generateUuidv4, LogLevels } from './utils';
 import { EditorConfig, OutputData, SanitizerConfig } from '../../types';
 import { EditorModules } from '../types-internal/editor-modules';
 import I18n from './i18n';
