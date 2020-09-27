@@ -58,7 +58,6 @@ export default class InactiveTune implements BlockTune {
     /**
      * Enable tooltip module
      */
-    console.log('---------- RENDER ---------', currentBlock.disabled);
     if (currentBlock.disabled === true) {
       currentBlock.holder.classList.add(this.CSS.blockDisabled);
       this.nodes.button.classList.add(this.CSS.buttonActive);
@@ -80,7 +79,6 @@ export default class InactiveTune implements BlockTune {
   public handleClick(event: MouseEvent): void {
     const currentBlock = this.api.blocks.getBlockByIndex(this.api.blocks.getCurrentBlockIndex());
 
-    // console.log('---------- handleClick ---------', currentBlock.disabled);
     if (currentBlock.disabled === true) {
       currentBlock.disabled = false;
       currentBlock.holder.classList.remove(this.CSS.blockDisabled);
