@@ -9,6 +9,10 @@ export interface OutputBlockData {
    */
   id: string;
   /**
+   * Unique Id of the block
+   */
+  disabled: boolean;
+  /**
    * Too type
    */
   type: string;

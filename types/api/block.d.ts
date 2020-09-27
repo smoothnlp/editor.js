@@ -42,6 +42,13 @@ export interface BlockAPI {
   stretched: boolean;
 
   /**
+   * Setter sets Block's disabled state
+   *
+   * Getter returns true if Block is disabled
+   */
+  disabled: boolean;
+
+  /**
    * Call Tool method with errors handler under-the-hood
    *
    * @param {string} methodName - method to call

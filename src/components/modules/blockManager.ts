@@ -211,11 +211,12 @@ export default class BlockManager extends Module {
    *
    * @returns {Block}
    */
-  public composeBlock({ tool, id = generateUuidv4(), data = {} }: {tool: string; id?: string; data?: BlockToolData}): Block {
+  public composeBlock({ tool, id = generateUuidv4(), disabled = false, data = {} }: {tool: string; id?: string; disabled?: boolean; data?: BlockToolData}): Block {
     const settings = this.Editor.Tools.getToolSettings(tool);
     const Tool = this.Editor.Tools.available[tool] as BlockToolConstructable;
     const block = new Block({
       id,
+      disabled,
       name: tool,
       data,
       Tool,
@@ -242,6 +243,7 @@ export default class BlockManager extends Module {
    */
   public insert({
     id = generateUuidv4(),
+    disabled = false,
     tool = this.config.initialBlock,
     data = {},
     index,
@@ -249,6 +251,7 @@ export default class BlockManager extends Module {
     replace = false,
   }: {
     id?: string;
+    disabled?: boolean;
     tool?: string;
     data?: BlockToolData;
     index?: number;
@@ -263,6 +266,7 @@ export default class BlockManager extends Module {
 
     const block = this.composeBlock({
       id,
+      disabled,
       tool,
       data,
     });

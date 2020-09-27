@@ -85,6 +85,24 @@ function BlockAPI(block: Block): void {
     },
 
     /**
+     * Set Block's active state
+     *
+     * @param {boolean} state — state to set
+     */
+    set disabled(state: boolean) {
+      block.disabled = state;
+    },
+
+    /**
+     * True if Block is active
+     *
+     * @returns {boolean}
+     */
+    get disabled(): boolean {
+      return block.disabled;
+    },
+
+    /**
      * Call Tool method with errors handler under-the-hood
      *
      * @param {string} methodName - method to call

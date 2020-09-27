@@ -22,6 +22,7 @@ import { ToolType } from '../modules/tools';
 import MoveUpTune from '../block-tunes/block-tune-move-up';
 import DeleteTune from '../block-tunes/block-tune-delete';
 import MoveDownTune from '../block-tunes/block-tune-move-down';
+import DisableTune from '../block-tunes/block-tune-inactive';
 
 /**
  * Interface describes Block class constructor argument
@@ -31,6 +32,11 @@ interface BlockConstructorOptions {
    * Tool's id
    */
   id: string;
+
+  /**
+   * Tool's disabled state
+   */
+  disabled: boolean;
 
   /**
    * Tool's name
@@ -100,6 +106,7 @@ export default class Block {
     return {
       wrapper: 'ce-block',
       wrapperStretched: 'ce-block--stretched',
+      wrapperDisabled: 'ce-block--disabled',
       content: 'ce-block__content',
       focused: 'ce-block--focused',
       selected: 'ce-block--selected',
@@ -213,6 +220,7 @@ export default class Block {
    */
   constructor({
     id,
+    disabled,
     name,
     data,
     Tool,
@@ -237,6 +245,7 @@ export default class Block {
     });
 
     this.holder = this.compose();
+    this.disabled = disabled;
     /**
      * @type {BlockTune[]}
      */
@@ -341,6 +350,8 @@ export default class Block {
   public get data(): Promise<BlockToolData> {
     return this.save().then((savedObject) => {
       if (savedObject && !_.isEmpty(savedObject.data)) {
+        savedObject.data.active = this.disabled;
+
         return savedObject.data;
       } else {
         return {};
@@ -457,8 +468,17 @@ export default class Block {
    *
    * @returns {boolean}
    */
-  public get stretched(): boolean {
-    return this.holder.classList.contains(Block.CSS.wrapperStretched);
+  public get disabled(): boolean {
+    return this.holder.classList.contains(Block.CSS.wrapperDisabled);
+  }
+
+  /**
+   * Set stretched state
+   *
+   * @param {boolean} state - 'true' to enable, 'false' to disable stretched statte
+   */
+  public set disabled(state: boolean) {
+    this.holder.classList.toggle(Block.CSS.wrapperDisabled, state);
   }
 
   /**
@@ -556,6 +576,7 @@ export default class Block {
 
         return {
           id: this.id,
+          disabled: this.disabled,
           tool: this.name,
           data: finishedExtraction,
           time: measuringEnd - measuringStart,
@@ -604,6 +625,10 @@ export default class Block {
       {
         name: 'moveDown',
         Tune: MoveDownTune,
+      },
+      {
+        name: 'disable',
+        Tune: DisableTune,
       },
     ];
 

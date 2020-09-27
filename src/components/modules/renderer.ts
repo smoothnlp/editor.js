@@ -67,6 +67,7 @@ export default class Renderer extends Module {
   public async insertBlock(item: OutputBlockData): Promise<void> {
     const { Tools, BlockManager } = this.Editor;
     const id = item.id || generateUuidv4();
+    const disabled = item.disabled || false;
     const tool = item.type;
     const data = item.data;
 
@@ -74,6 +75,7 @@ export default class Renderer extends Module {
       try {
         BlockManager.insert({
           id,
+          disabled,
           tool,
           data,
         });
@@ -86,6 +88,7 @@ export default class Renderer extends Module {
       const stubData = {
         savedData: {
           id,
+          disabled,
           type: tool,
           data,
         },
@@ -101,6 +104,7 @@ export default class Renderer extends Module {
 
       const stub = BlockManager.insert({
         id,
+        disabled,
         tool: Tools.stubTool,
         data: stubData,
       });

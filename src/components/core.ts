@@ -177,6 +177,7 @@ export default class Core {
      */
     const initialBlockData = {
       id: generateUuidv4(),
+      disabled: false,
       type: this.config.initialBlock,
       data: {},
     };

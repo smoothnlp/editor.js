@@ -24,6 +24,10 @@
     max-width: none;
   }
 
+  &--disabled {
+    opacity: 0.3;
+  }
+
   &__content {
     position: relative;
     max-width: var(--content-width);
