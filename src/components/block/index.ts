@@ -23,6 +23,8 @@ import MoveUpTune from '../block-tunes/block-tune-move-up';
 import DeleteTune from '../block-tunes/block-tune-delete';
 import MoveDownTune from '../block-tunes/block-tune-move-down';
 import DisableTune from '../block-tunes/block-tune-inactive';
+import AddAboveTune from '../block-tunes/block-tune-add-above';
+import AddBelowTune from '../block-tunes/block-tune-add-below';
 
 /**
  * Interface describes Block class constructor argument
@@ -629,6 +631,14 @@ export default class Block {
       {
         name: 'disable',
         Tune: DisableTune,
+      },
+      {
+        name: 'addAbove',
+        Tune: AddAboveTune,
+      },
+      {
+        name: 'addBelow',
+        Tune: AddBelowTune,
       },
     ];
 
