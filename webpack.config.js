@@ -1,5 +1,6 @@
 /**
  * Webpack configuration
+
  *
  * @author Codex Team
  * @copyright Khaydarov Murod
@@ -34,8 +35,8 @@ module.exports = (env, argv) => {
     },
 
     output: {
-      // path: path.resolve(__dirname, 'dist'),
-      path: path.resolve(__dirname, '../visual_lab/src/plugins/editorjs'),
+      path: path.resolve(__dirname, 'dist'),
+      // path: path.resolve(__dirname, '../visual_lab/src/plugins/editorjs'),
       filename: '[name].js',
       library: [ 'EditorJS' ],
       libraryTarget: 'umd',

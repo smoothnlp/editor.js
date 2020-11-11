@@ -16,7 +16,7 @@
     "build:win": "rimraf dist && yarn svg:win && yarn build:prod",
     "build:dev": "webpack --mode development --progress --display-error-details --display-entrypoints --watch",
     "build:prod": "webpack --mode production",
-    "server:dev":"webpack-dev-server",
+    "server:dev": "webpack-dev-server",
     "start:dev": "yarn build:dev ; yarn devserve",
     "lint": "eslint src/ --ext .ts",
     "lint:errors": "eslint src/ --ext .ts --quiet",
