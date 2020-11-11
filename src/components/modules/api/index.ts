@@ -32,7 +32,8 @@ export default class API extends Module {
       tooltip: this.Editor.TooltipAPI.methods,
       i18n: this.Editor.I18nAPI.methods,
       smooth: this.Editor.SmoothAPI.methods,
-    } as APIInterfaces;
+      readOnly: this.Editor.ReadOnlyAPI.methods,
+    };
   }
 
   /**

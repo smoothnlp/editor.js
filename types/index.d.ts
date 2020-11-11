@@ -5,12 +5,13 @@
  */
 
 import {
-  EditorConfig,
-  I18nDictionary,
   Dictionary,
   DictValue,
+  EditorConfig,
   I18nConfig,
+  I18nDictionary,
 } from './configs';
+
 import {
   Blocks,
   Caret,
@@ -18,6 +19,7 @@ import {
   InlineToolbar,
   Listeners,
   Notifier,
+  ReadOnly,
   Sanitizer,
   Saver,
   Selection,
@@ -27,7 +29,8 @@ import {
   I18n,
   Smooth,
 } from './api';
-import {OutputData} from './data-formats/output-data';
+
+import { OutputData } from './data-formats';
 
 /**
  * Interfaces used for development
@@ -90,6 +93,7 @@ export interface API {
   tooltip: Tooltip;
   i18n: I18n;
   smooth:Smooth,
+  readOnly: ReadOnly;
 }
 
 /**
@@ -110,6 +114,7 @@ declare class EditorJS {
   public styles: Styles;
   public toolbar: Toolbar;
   public inlineToolbar: InlineToolbar;
+  public readOnly: ReadOnly;
   constructor(configuration?: EditorConfig|string);
 
   /**

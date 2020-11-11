@@ -72,7 +72,7 @@ export default class SmoothAPI extends Module {
     if (tool && tool[this.Editor.Tools.INTERNAL_SETTINGS.IS_ENABLED_LINE_BREAKS] && !Caret.isAtStart) {
       return;
     }
-    
+
     const isFirstBlock = BlockManager.currentBlockIndex === 0;
 
     const canMergeBlocks = Caret.isAtStart &&
@@ -178,7 +178,7 @@ export default class SmoothAPI extends Module {
      * If enter has been pressed at the start of the text, just insert paragraph Block above
      */
     if (this.Editor.Caret.isAtStart && !this.Editor.BlockManager.currentBlock.hasMedia) {
-      this.Editor.BlockManager.insertInitialBlockAtIndex(this.Editor.BlockManager.currentBlockIndex);
+      this.Editor.BlockManager.insertDefaultBlockAtIndex(this.Editor.BlockManager.currentBlockIndex);
     } else {
       /**
        * Split the Current Block into two blocks
@@ -193,7 +193,7 @@ export default class SmoothAPI extends Module {
     /**
      * If new Block is empty
      */
-    if (this.Editor.Tools.isInitial(newCurrent.tool) && newCurrent.isEmpty) {
+    if (this.Editor.Tools.isDefault(newCurrent.tool) && newCurrent.isEmpty) {
       /**
        * Show Toolbar
        */

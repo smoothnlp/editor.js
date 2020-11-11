@@ -1,7 +1,5 @@
 import Module from '../__module';
-/* eslint-disable import/no-duplicates */
 import * as _ from '../utils';
-import { ChainData } from '../utils';
 import { BlockToolConstructable, OutputBlockData } from '../../../types';
 
 /**
@@ -24,12 +22,14 @@ export default class Renderer extends Module {
    *
    * blocks: [
    *   {
+   *     id   : 'eab2b1cd-a3d3-48d1-aadb-bd821d8ec871',
    *     type : 'paragraph',
    *     data : {
    *       text : 'Hello from Codex!'
    *     }
    *   },
    *   {
+   *     id   : '391a1351-6ec6-473b-8b99-b20507e2d4c2',
    *     type : 'paragraph',
    *     data : {
    *       text : 'Leave feedback if you like it!'
@@ -47,7 +47,7 @@ export default class Renderer extends Module {
   public async render(blocks: OutputBlockData[]): Promise<void> {
     const chainData = blocks.map((block) => ({ function: (): Promise<void> => this.insertBlock(block) }));
 
-    const sequence = await _.sequence(chainData as ChainData[]);
+    const sequence = await _.sequence(chainData as _.ChainData[]);
 
     this.Editor.UI.checkEmptiness();
 
@@ -60,16 +60,19 @@ export default class Renderer extends Module {
    * Insert block to working zone
    *
    * @param {object} item - Block data to insert
+   *
    * @returns {Promise<void>}
    */
   public async insertBlock(item: OutputBlockData): Promise<void> {
     const { Tools, BlockManager } = this.Editor;
+    const id = item.id || _.generateUuidv4();
     const tool = item.type;
     const data = item.data;
 
     if (tool in Tools.available) {
       try {
         BlockManager.insert({
+          id,
           tool,
           data,
         });
@@ -81,6 +84,7 @@ export default class Renderer extends Module {
       /** If Tool is unavailable, create stub Block for it */
       const stubData = {
         savedData: {
+          id,
           type: tool,
           data,
         },
@@ -91,10 +95,11 @@ export default class Renderer extends Module {
         const toolToolboxSettings = (Tools.unavailable[tool] as BlockToolConstructable).toolbox;
         const userToolboxSettings = Tools.getToolSettings(tool).toolbox;
 
-        stubData.title = toolToolboxSettings.title || userToolboxSettings.title || stubData.title;
+        stubData.title = toolToolboxSettings.title || (userToolboxSettings && userToolboxSettings.title) || stubData.title;
       }
 
       const stub = BlockManager.insert({
+        id,
         tool: Tools.stubTool,
         data: stubData,
       });

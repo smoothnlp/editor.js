@@ -11,6 +11,7 @@ export * from './notifier';
 export * from './tooltip';
 export * from './inline-toolbar';
 export * from './block';
+export * from './readonly';
 export * from './i18n';
 export * from './smooth';
 

@@ -10,11 +10,10 @@ import {
   ToolSettings
 } from '../../../types';
 
-import { SavedData } from '../../types-internal/block-data';
+import { SavedData } from '../../../types/data-formats';
 import $ from '../dom';
 import * as _ from '../utils';
-import ApiModule from '../modules/api';
-import SelectionUtils from '../selection';
+import ApiModules from '../modules/api';
 import BlockAPI from './api';
 import { ToolType } from '../modules/tools';
 
@@ -22,11 +21,17 @@ import { ToolType } from '../modules/tools';
 import MoveUpTune from '../block-tunes/block-tune-move-up';
 import DeleteTune from '../block-tunes/block-tune-delete';
 import MoveDownTune from '../block-tunes/block-tune-move-down';
+import SelectionUtils from '../selection';
 
 /**
  * Interface describes Block class constructor argument
  */
 interface BlockConstructorOptions {
+  /**
+   * Tool's id
+   */
+  id: string;
+
   /**
    * Tool's name
    */
@@ -50,7 +55,12 @@ interface BlockConstructorOptions {
   /**
    * Editor's API methods
    */
-  api: ApiModule;
+  api: ApiModules;
+
+  /**
+   * This flag indicates that the Block should be constructed in the read-only mode.
+   */
+  readOnly: boolean;
 }
 
 /**
@@ -103,6 +113,11 @@ export default class Block {
   }
 
   /**
+   * unique identifier
+   */
+  public id: string;
+
+  /**
    * Block Tool`s name
    */
   public name: string;
@@ -147,7 +162,7 @@ export default class Block {
   /**
    * Editor`s API module
    */
-  private readonly api: ApiModule;
+  private readonly api: ApiModules;
 
   /**
    * Focused input index
@@ -194,19 +209,24 @@ export default class Block {
 
   /**
    * @param {object} options - block constructor options
+   * @param {string} options.id - Tool's unique id
    * @param {string} options.name - Tool name that passed on initialization
    * @param {BlockToolData} options.data - Tool's initial data
    * @param {BlockToolConstructable} options.Tool — Tool's class
    * @param {ToolSettings} options.settings - default tool's config
-   * @param {ApiModule} options.api - Editor API module for pass it to the Block Tunes
+   * @param {Module} options.api - Editor API module for pass it to the Block Tunes
+   * @param {boolean} options.readOnly - Read-Only flag
    */
   constructor({
+    id,
     name,
     data,
     Tool,
     settings,
     api,
+    readOnly,
   }: BlockConstructorOptions) {
+    this.id = id;
     this.name = name;
     this.class = Tool;
     this.settings = settings;
@@ -221,6 +241,7 @@ export default class Block {
       config: this.config,
       api: this.api.getMethodsForTool(name, ToolType.Block),
       block: this.blockAPI,
+      readOnly,
     });
 
     this.holder = this.compose();
@@ -351,7 +372,7 @@ export default class Block {
    * @returns {boolean}
    */
   public mergeable(): boolean {
-    return typeof this.tool.merge === 'function';
+    return _.isFunction(this.tool.merge);
   }
 
   /**
@@ -542,6 +563,7 @@ export default class Block {
         measuringEnd = window.performance.now();
 
         return {
+          id: this.id,
           tool: this.name,
           data: finishedExtraction,
           time: measuringEnd - measuringStart,
@@ -621,7 +643,15 @@ export default class Block {
    * Update current input index with selection anchor node
    */
   public updateCurrentInput(): void {
-    this.currentInput = SelectionUtils.anchorNode;
+    /**
+     * If activeElement is native input, anchorNode points to its parent.
+     * So if it is native input use it instead of anchorNode
+     *
+     * If anchorNode is undefined, also use activeElement
+     */
+    this.currentInput = $.isNativeInput(document.activeElement) || !SelectionUtils.anchorNode
+      ? document.activeElement
+      : SelectionUtils.anchorNode;
   }
 
   /**
@@ -640,6 +670,12 @@ export default class Block {
         attributes: true,
       }
     );
+
+    /**
+     * Mutation observer doesn't track changes in "<input>" and "<textarea>"
+     * so we need to track focus events to update current input and clear cache.
+     */
+    this.addInputEvents();
   }
 
   /**
@@ -647,6 +683,7 @@ export default class Block {
    */
   public willUnselect(): void {
     this.mutationObserver.disconnect();
+    this.removeInputEvents();
   }
 
   /**
@@ -663,5 +700,38 @@ export default class Block {
     wrapper.appendChild(contentNode);
 
     return wrapper;
+  }
+
+  /**
+   * Is fired when text input or contentEditable is focused
+   */
+  private handleFocus = (): void => {
+    /**
+     * Drop cache
+     */
+    this.cachedInputs = [];
+
+    /**
+     * Update current input
+     */
+    this.updateCurrentInput();
+  }
+
+  /**
+   * Adds focus event listeners to all inputs and contentEditables
+   */
+  private addInputEvents(): void {
+    this.inputs.forEach(input => {
+      input.addEventListener('focus', this.handleFocus);
+    });
+  }
+
+  /**
+   * removes focus event listeners from all inputs and contentEditables
+   */
+  private removeInputEvents(): void {
+    this.inputs.forEach(input => {
+      input.removeEventListener('focus', this.handleFocus);
+    });
   }
 }
