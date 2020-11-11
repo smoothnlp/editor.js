@@ -271,10 +271,11 @@ export default class Toolbar extends Module<ToolbarNodes> {
      * Add events to show/hide tooltip for plus button
      */
     const tooltipContent = $.make('div');
+    const userOS = Object.entries(_.getUserOS()).find(([key, value]) => value === true)[0];
 
     tooltipContent.appendChild(document.createTextNode(I18n.ui(I18nInternalNS.ui.toolbar.toolbox, 'Add')));
     tooltipContent.appendChild($.make('div', this.CSS.plusButtonShortcut, {
-      textContent: '⇥ Tab',
+      textContent: userOS === 'mac' ? '⌘+/' : 'ctrl+/',
     }));
 
     this.Editor.Tooltip.onHover(this.nodes.plusButton, tooltipContent);
