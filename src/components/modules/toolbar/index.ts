@@ -192,9 +192,11 @@ export default class Toolbar extends Module<ToolbarNodes> {
       let contentOffset: number;
       const firstInputLine = this.Editor.BlockManager.currentBlock.cachedInputs[0];
 
+      /**
+       *  根据当前的block的输入首行高度和位置，定位Button位置；
+       */
       if (firstInputLine) {
         const inputLineContainer = firstInputLine.previousSibling?.nodeType === Node.TEXT_NODE ? firstInputLine.parentElement : firstInputLine;
-
         const hiddenEle = document.createElement('SPAN');
         const text = document.createTextNode('\u200B');
 
