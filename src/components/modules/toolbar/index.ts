@@ -128,7 +128,7 @@ export default class Toolbar extends Module<ToolbarNodes> {
    *
    * @returns {{hide: function(): void, show: function(): void}}
    */
-  private get blockActions(): { hide: () => void; show: () => void } {
+  public get blockActions(): { hide: () => void; show: () => void } {
     return {
       hide: (): void => {
         this.nodes.actions.classList.remove(this.CSS.actionsOpened);
@@ -178,6 +178,9 @@ export default class Toolbar extends Module<ToolbarNodes> {
     }
 
     const { isMobile } = this.Editor.UI;
+
+    // 测量block的单行距，取出字符串塞入一个隐藏字符，获得行高以后再塞回去
+    // console.log('fakeblock', this.Editor.BlockManager.currentBlock.cachedInputs[0], currentBlock.children[0]);
     const blockHeight = currentBlock.offsetHeight;
     let toolbarY = currentBlock.offsetTop;
 
@@ -186,8 +189,29 @@ export default class Toolbar extends Module<ToolbarNodes> {
      * 2) On mobile — Toolbar at the bottom of Block
      */
     if (!isMobile) {
-      const contentOffset = Math.floor(blockHeight / 2);
+      let contentOffset: number;
+      const firstInputLine = this.Editor.BlockManager.currentBlock.cachedInputs[0];
 
+      if (firstInputLine) {
+        const inputLineContainer = firstInputLine.previousSibling?.nodeType === Node.TEXT_NODE ? firstInputLine.parentElement : firstInputLine;
+
+        const hiddenEle = document.createElement('SPAN');
+        const text = document.createTextNode('\u200B');
+
+        hiddenEle.appendChild(text);
+        inputLineContainer.insertBefore(hiddenEle, inputLineContainer.childNodes[0]);
+        const { height: lineHeight, top: lineTop } = hiddenEle.getBoundingClientRect();
+        const { top: blockTop } = currentBlock.getBoundingClientRect();
+
+        inputLineContainer.removeChild(hiddenEle);
+        contentOffset = Math.floor(lineTop - blockTop + lineHeight / 2);
+      }
+      if (contentOffset <= 0 || !contentOffset) {
+        contentOffset = Math.floor(blockHeight / 2);
+        contentOffset = contentOffset < 24 ? contentOffset : 24;
+      }
+
+      this.nodes.actions.style.transform = `translate3d(0, calc(${contentOffset}px - 50%), 0)`;
       this.nodes.plusButton.style.transform = `translate3d(0, calc(${contentOffset}px - 50%), 0)`;
       this.Editor.Toolbox.nodes.toolbox.style.transform = `translate3d(0, calc(${contentOffset}px - 50%), 0)`;
     } else {
@@ -214,7 +238,6 @@ export default class Toolbar extends Module<ToolbarNodes> {
     _.delay(() => {
       this.move(needToCloseToolbox);
       this.nodes.wrapper.classList.add(this.CSS.toolbarOpened);
-
       if (withBlockActions) {
         this.blockActions.show();
       } else {

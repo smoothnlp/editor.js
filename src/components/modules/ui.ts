@@ -713,7 +713,9 @@ export default class UI extends Module<UINodes> {
       const isEmptyBlock = this.Editor.BlockManager.currentBlock.isEmpty;
 
       if (isEmptyBlock) {
+        this.Editor.Toolbar.blockActions.hide();
         this.Editor.Toolbar.plusButton.show();
+
       }
     }
   }

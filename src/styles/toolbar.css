@@ -39,6 +39,8 @@
   &__plus {
     @apply --toolbox-button;
 
+    background: #ffffff!important;
+    z-index:1;
     position: absolute;
     left: calc(var(--toolbox-buttons-size) * -1);
     flex-shrink: 0;
@@ -64,6 +66,7 @@
   .ce-toolbox {
     top: 50%;
     transform: translateY(-50%);
+
   }
 
   /**
@@ -71,10 +74,11 @@
    * -------------------------
    */
   &__actions {
+    @apply --toolbox-button;
     position: absolute;
-    right: -30px;
-    top: 5px;
+    left: calc(var(--toolbox-buttons-size) * -1);
     opacity: 0;
+    transition: opacity 0.8s;
 
     @media (--mobile){
       position: absolute;
@@ -86,6 +90,7 @@
     }
 
     &--opened {
+      transition: opacity 0.8s;
       opacity: 1;
     }
 

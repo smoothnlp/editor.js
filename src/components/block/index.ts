@@ -157,7 +157,7 @@ export default class Block {
    *
    * @type {HTMLElement[]}
    */
-  private cachedInputs: HTMLElement[] = [];
+  public cachedInputs: HTMLElement[] = [];
 
   /**
    * Editor`s API module
