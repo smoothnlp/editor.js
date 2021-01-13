@@ -184,40 +184,41 @@ export default class Toolbar extends Module<ToolbarNodes> {
     const blockHeight = currentBlock.offsetHeight;
     let toolbarY = currentBlock.offsetTop;
 
+    let contentOffset: number;
+      const firstInputLine = this.Editor.BlockManager.currentBlock.cachedInputs[0];
+
+    /**
+     *  根据当前的block的输入首行高度和位置，定位Button位置；
+     */
+    if (firstInputLine) {
+      const inputLineContainer = firstInputLine.previousSibling?.nodeType === Node.TEXT_NODE ? firstInputLine.parentElement : firstInputLine;
+      const hiddenEle = document.createElement('SPAN');
+      const text = document.createTextNode('\u200B');
+
+      hiddenEle.appendChild(text);
+      inputLineContainer.insertBefore(hiddenEle, inputLineContainer.childNodes[0]);
+      const { height: lineHeight, top: lineTop } = hiddenEle.getBoundingClientRect();
+      const { top: blockTop } = currentBlock.getBoundingClientRect();
+
+      inputLineContainer.removeChild(hiddenEle);
+      contentOffset = Math.floor(lineTop - blockTop + lineHeight / 2);
+    }
+    if (contentOffset <= 0 || !contentOffset) {
+      contentOffset = Math.floor(blockHeight / 2);
+      contentOffset = contentOffset < 24 ? contentOffset : 24;
+    }
+
     /**
      * 1) On desktop — Toolbar at the top of Block, Plus/Toolbox moved the center of Block
      * 2) On mobile — Toolbar at the bottom of Block
      */
     if (!isMobile) {
-      let contentOffset: number;
-      const firstInputLine = this.Editor.BlockManager.currentBlock.cachedInputs[0];
-
-      /**
-       *  根据当前的block的输入首行高度和位置，定位Button位置；
-       */
-      if (firstInputLine) {
-        const inputLineContainer = firstInputLine.previousSibling?.nodeType === Node.TEXT_NODE ? firstInputLine.parentElement : firstInputLine;
-        const hiddenEle = document.createElement('SPAN');
-        const text = document.createTextNode('\u200B');
-
-        hiddenEle.appendChild(text);
-        inputLineContainer.insertBefore(hiddenEle, inputLineContainer.childNodes[0]);
-        const { height: lineHeight, top: lineTop } = hiddenEle.getBoundingClientRect();
-        const { top: blockTop } = currentBlock.getBoundingClientRect();
-
-        inputLineContainer.removeChild(hiddenEle);
-        contentOffset = Math.floor(lineTop - blockTop + lineHeight / 2);
-      }
-      if (contentOffset <= 0 || !contentOffset) {
-        contentOffset = Math.floor(blockHeight / 2);
-        contentOffset = contentOffset < 24 ? contentOffset : 24;
-      }
-
       this.nodes.actions.style.transform = `translate3d(0, calc(${contentOffset}px - 50%), 0)`;
       this.nodes.plusButton.style.transform = `translate3d(0, calc(${contentOffset}px - 50%), 0)`;
-      this.Editor.Toolbox.nodes.toolbox.style.transform = `translate3d(0, calc(${contentOffset}px - 50%), 0)`;
+      this.Editor.Toolbox.nodes.toolbox.style.transform = `translate3d(0, calc(${contentOffset}px - 50% ), 0)`;
     } else {
       toolbarY += blockHeight;
+      this.nodes.actions.style.transform = `translate3d(0, calc(-${blockHeight+28-contentOffset}px - 50%), 0)`;
     }
 
     /**
