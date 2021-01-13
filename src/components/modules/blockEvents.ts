@@ -132,7 +132,7 @@ export default class BlockEvents extends Module {
     const conversionToolbarOpened = !currentBlock.isEmpty && ConversionToolbar.opened;
     const inlineToolbarOpened = !currentBlock.isEmpty && !SelectionUtils.isCollapsed && InlineToolbar.opened;
     const isTabKeyPressed = event.code === "Slash";
-
+   
     /**
      * For empty Blocks we show Plus button via Toolbox only for default Blocks
      */
@@ -571,6 +571,7 @@ export default class BlockEvents extends Module {
   private activateBlockSettings(): void {
     if (!this.Editor.Toolbar.opened) {
       this.Editor.BlockManager.currentBlock.focused = true;
+      
       this.Editor.Toolbar.open(true, false);
       this.Editor.Toolbar.plusButton.hide();
     }

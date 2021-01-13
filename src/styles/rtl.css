@@ -7,6 +7,7 @@
   }
 
   .ce-toolbar {
+    z-index:100;
     &__plus {
       right: calc(var(--toolbox-buttons-size) * -1);
       left: auto;
