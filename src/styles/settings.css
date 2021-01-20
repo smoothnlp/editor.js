@@ -1,7 +1,7 @@
 .ce-settings {
   @apply --overlay-pane;
   left: 34px;
-  top: 40px;
+  top: 34px;
   min-width: 114px;
   box-sizing: content-box;
 

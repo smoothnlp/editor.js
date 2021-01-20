@@ -645,9 +645,8 @@ export default class UI extends Module<UINodes> {
     /**
      * Move and open toolbar
      */
-    
-    this.Editor.Toolbar.open(!this.Editor.BlockManager.currentBlock.isEmpty);
-  
+    this.Editor.Toolbar.open();
+
     /**
      * Hide the Plus Button
      */

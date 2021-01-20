@@ -185,7 +185,7 @@ export default class Toolbar extends Module<ToolbarNodes> {
     let toolbarY = currentBlock.offsetTop;
 
     let contentOffset: number;
-      const firstInputLine = this.Editor.BlockManager.currentBlock.cachedInputs[0];
+    const firstInputLine = this.Editor.BlockManager.currentBlock.cachedInputs[0];
 
     /**
      *  根据当前的block的输入首行高度和位置，定位Button位置；
@@ -278,7 +278,7 @@ export default class Toolbar extends Module<ToolbarNodes> {
      * Actions will be included to the toolbar content so we can align in to the right of the content
      */
     $.append(this.nodes.wrapper, this.nodes.content);
-    $.append(this.nodes.content, this.nodes.actions);
+
 
     /**
      * Fill Content Zone:
@@ -288,7 +288,7 @@ export default class Toolbar extends Module<ToolbarNodes> {
     this.nodes.plusButton = $.make('div', this.CSS.plusButton);
     $.append(this.nodes.plusButton, $.svg('plus', 14, 14));
     $.append(this.nodes.content, this.nodes.plusButton);
-
+    $.append(this.nodes.content, this.nodes.actions);
     this.readOnlyMutableListeners.on(this.nodes.plusButton, 'click', () => {
       this.plusButtonClicked();
     }, false);

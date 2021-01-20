@@ -133,7 +133,7 @@ export default class InlineToolbar extends Module<InlineToolbarNodes> {
     const selectionRect = SelectionUtils.rect as DOMRect;
     const wrapperOffset = this.Editor.UI.nodes.wrapper.getBoundingClientRect();
     const newCoords = {
-      x: selectionRect.x - wrapperOffset.left,
+      x: selectionRect.x - wrapperOffset.left, // 计算的是相对编辑器位置
       y: selectionRect.y +
         selectionRect.height -
         // + window.scrollY
@@ -162,12 +162,10 @@ export default class InlineToolbar extends Module<InlineToolbarNodes> {
       this.CSS.inlineToolbarLeftOriented,
       realLeftCoord < this.Editor.UI.contentRect.left
     );
+    const isOverRight = realRightCoord > this.Editor.UI.contentRect.width;
 
-    this.nodes.wrapper.classList.toggle(
-      this.CSS.inlineToolbarRightOriented,
-      realRightCoord > this.Editor.UI.contentRect.right
-    );
-
+    this.nodes.wrapper.classList.toggle(this.CSS.inlineToolbarRightOriented, isOverRight);
+    newCoords.x = isOverRight ? this.Editor.UI.contentRect.width : newCoords.x;
     this.nodes.wrapper.style.left = Math.floor(newCoords.x) + 'px';
     this.nodes.wrapper.style.top = Math.floor(newCoords.y) + 'px';
   }
