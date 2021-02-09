@@ -11,7 +11,8 @@
   &--showed {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%)
+    transform: translateX(-50%);
+    transition: transform 0.5s;
   }
 
   &--left-oriented {
@@ -23,11 +24,13 @@
   }
 
   &--right-oriented {
+    transition: transform 0.5s;
     transform: translateX(-100%) translateY(8px) scale(0.9);
     margin-left: 23px;
   }
 
   &--right-oriented&--showed {
+    transition: transform 0.5s;
     transform: translateX(-100%);
   }
 

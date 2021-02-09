@@ -158,14 +158,20 @@ export default class InlineToolbar extends Module<InlineToolbarNodes> {
      * By default, Inline Toolbar has top-corner at the center
      * We are adding a modifiers for to move corner to the left or right
      */
+    const isOverLeft = realLeftCoord < 0;
+
     this.nodes.wrapper.classList.toggle(
       this.CSS.inlineToolbarLeftOriented,
-      realLeftCoord < this.Editor.UI.contentRect.left
+      isOverLeft
     );
+
+    newCoords.x = isOverLeft ? 0 : newCoords.x;
+
     const isOverRight = realRightCoord > this.Editor.UI.contentRect.width;
 
-    this.nodes.wrapper.classList.toggle(this.CSS.inlineToolbarRightOriented, isOverRight);
     newCoords.x = isOverRight ? this.Editor.UI.contentRect.width : newCoords.x;
+
+    this.nodes.wrapper.classList.toggle(this.CSS.inlineToolbarRightOriented, isOverRight);
     this.nodes.wrapper.style.left = Math.floor(newCoords.x) + 'px';
     this.nodes.wrapper.style.top = Math.floor(newCoords.y) + 'px';
   }
