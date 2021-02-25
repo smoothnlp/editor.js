@@ -20,8 +20,9 @@ export default class BlockEvents extends Module {
      * Run common method for all keydown events
      */
     this.beforeKeydownProcessing(event);
-    // console.log('beforeKeydownProcessing',event,)
-
+    if (this.checkProtectedKey(event.keyCode)) {
+      return;
+    }
     /**
      * Fire keydown processor by event.keyCode
      */
@@ -131,8 +132,8 @@ export default class BlockEvents extends Module {
     const canOpenToolbox = Tools.isDefault(currentBlock.tool) && currentBlock.isEmpty;
     const conversionToolbarOpened = !currentBlock.isEmpty && ConversionToolbar.opened;
     const inlineToolbarOpened = !currentBlock.isEmpty && !SelectionUtils.isCollapsed && InlineToolbar.opened;
-    const isTabKeyPressed = event.code === "Slash";
-   
+    const isTabKeyPressed = event.code === 'Slash';
+
     /**
      * For empty Blocks we show Plus button via Toolbox only for default Blocks
      */
@@ -207,15 +208,22 @@ export default class BlockEvents extends Module {
   /**
    * 在快捷键冲突的情况下，块如果占用相同的键并声明，块优先级可以高于全局
    *
-   * @param {string}key - keyboard key name
+   * @param {number}keyCode - keyboard key name
    */
-  private checkProtectedKey(key: string): boolean {
-    key = key.toUpperCase();
+  private checkProtectedKey(keyCode: number): boolean {
     const { Tools, BlockManager } = this.Editor;
     const blockConfig = Tools.getToolSettings(BlockManager.currentBlock.name);
 
     if (blockConfig.usedKeys) {
-      return blockConfig.usedKeys.toUpperCase().includes(key);
+      let keyName;
+
+      for (const [name, code] of Object.entries(_.keyCodes)) {
+        if (code === keyCode) {
+          keyName = name.toUpperCase();
+        }
+      }
+
+      return blockConfig.usedKeys.toUpperCase().includes(keyName);
     } else {
       return false;
     }
@@ -227,10 +235,6 @@ export default class BlockEvents extends Module {
    * @param {KeyboardEvent} event - keydown
    */
   private enter(event: KeyboardEvent): void {
-    if (this.checkProtectedKey('ENTER')) {
-      // event.preventDefault();
-      return;
-    }
     const { BlockManager, Tools, UI } = this.Editor;
     const currentBlock = BlockManager.currentBlock;
     const tool = Tools.available[currentBlock.name];
@@ -299,10 +303,6 @@ export default class BlockEvents extends Module {
    * @param {KeyboardEvent} event - keydown
    */
   private backspace(event: KeyboardEvent): void {
-    if (this.checkProtectedKey('BACKSPACE')) {
-      // console.log('checkProtectedKey');
-      return;
-    }
     const { BlockManager, BlockSelection, Caret } = this.Editor;
     const currentBlock = BlockManager.currentBlock;
     const tool = this.Editor.Tools.available[currentBlock.name];
@@ -571,7 +571,7 @@ export default class BlockEvents extends Module {
   private activateBlockSettings(): void {
     if (!this.Editor.Toolbar.opened) {
       this.Editor.BlockManager.currentBlock.focused = true;
-      
+
       this.Editor.Toolbar.open(true, false);
       this.Editor.Toolbar.plusButton.hide();
     }
