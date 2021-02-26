@@ -141,7 +141,7 @@ export default class BlocksAPI extends Module {
    * Clear Editor's area
    */
   public clear(): void {
-    this.Editor.BlockManager.clear(true);
+    this.Editor.BlockManager.clear(false);
     this.Editor.InlineToolbar.close();
   }
 
@@ -200,19 +200,22 @@ export default class BlocksAPI extends Module {
    * @param {ToolConfig} config — Tool config
    * @param {number?} index — index where to insert new Block
    * @param {boolean?} needToFocus - flag to focus inserted Block
+   * @param {string?} id -  inserted Block's id
    */
   public insert = (
     type: string = this.config.defaultBlock,
     data: BlockToolData = {},
     config: ToolConfig = {},
     index?: number,
-    needToFocus?: boolean
+    needToFocus?: boolean,
+    id?: string
   ): void => {
     this.Editor.BlockManager.insert({
       tool: type,
       data,
       index,
       needToFocus,
+      id,
     });
   }
 

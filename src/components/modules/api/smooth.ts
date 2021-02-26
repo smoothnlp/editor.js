@@ -1,8 +1,11 @@
+/* eslint-disable arrow-spacing */
 import Module from '../../__module';
 import { Smooth } from '../../../../types/api';
 import SelectionUtils from '../../selection';
 import Block, { BlockToolAPI } from '../../block';
 import $ from '../../dom';
+import * as _ from './../../utils';
+import { BlockToolData, ToolConfig } from '../../../../types';
 
 /**
  * @class BlocksAPI
@@ -17,8 +20,11 @@ export default class SmoothAPI extends Module {
     return {
       backspace: (e: KeyboardEvent, force: boolean): void => this.backspace(e, force),
       mergeBlock: (): void => this.mergeBlocks(),
-      splitBlock: (data: {text: string}): Block => this.splitBlock(data),
+      splitBlock: (data: { text: string }): Block => this.splitBlock(data),
       enter: (e: KeyboardEvent, data: object): void => this.enter(e, data),
+      replaceBlockByIndex: (type: string, data: BlockToolData, _index: number, id?: string, needToFocus?: boolean): void => this.replaceBlockByIndex(type, data, _index, id, needToFocus),
+      replaceBlockByID: (type: string, data: BlockToolData, id: string, needToFocus?: boolean): void => this.replaceBlockByID(type, data, id, needToFocus),
+      getBlockIndexByID: (id: string): number => this.getBlockIndexByID(id),
     };
   }
 
@@ -76,9 +82,9 @@ export default class SmoothAPI extends Module {
     const isFirstBlock = BlockManager.currentBlockIndex === 0;
 
     const canMergeBlocks = Caret.isAtStart &&
-            SelectionUtils.isCollapsed &&
-            currentBlock.currentInput === currentBlock.firstInput &&
-            !isFirstBlock;
+      SelectionUtils.isCollapsed &&
+      currentBlock.currentInput === currentBlock.firstInput &&
+      !isFirstBlock;
 
     console.log('this,Caret.isAtStart', Caret.isAtStart);
 
@@ -213,7 +219,7 @@ export default class SmoothAPI extends Module {
    *
    * @param data
    */
-  public splitBlock(data: {text: string}): Block {
+  public splitBlock(data: { text: string }): Block {
     const extractedFragment = this.Editor.Caret.extractFragmentFromCaretPosition();
 
     console.log('split block', extractedFragment);
@@ -235,5 +241,82 @@ export default class SmoothAPI extends Module {
      * @type {Block}
      */
     return this.Editor.BlockManager.insert({ data });
+  }
+
+  /**
+   * replace  Blocks data
+   *
+   * @param {string} type — Tool name
+   * @param {BlockToolData} data — Tool data to insert
+   * @param {ToolConfig} config — Tool config
+   * @param {number?} index — index where to insert new Block
+   * @param {boolean?} needToFocus - flag to focus inserted Block
+   * @param {boolean?}id
+   */
+  public replaceBlockByIndex(
+    type: string,
+    data: BlockToolData,
+    index: number,
+    id?: string,
+    needToFocus?: boolean,
+  ): void {
+    if (!id) {
+      id = _.generateUuidv4();
+    }
+    const replace = true;
+
+    this.Editor.BlockManager.insert({
+      id,
+      tool: type,
+      data,
+      index,
+      needToFocus,
+      replace,
+    });
+  }
+
+  /**
+   * place  Blocks data
+   *
+   * @param {string} type — Tool name
+   * @param {BlockToolData} data — Tool data to insert
+   * @param {string?} id — id where to replace Block
+   * @param {boolean?} needToFocus - flag to focus inserted Block
+   */
+  public replaceBlockByID(
+    type: string,
+    data: BlockToolData,
+    id: string,
+    needToFocus?: boolean,
+  ): void {
+    const blockIndex = this.getBlockIndexByID(id);
+    console.warn('replaceBlockByID',blockIndex);
+    this.replaceBlockByIndex(type, data, blockIndex, id, needToFocus);
+  }
+
+  /**
+   * get Block index
+   * @param {string} type — Tool name
+   * @param {BlockToolData} data — Tool data to insert
+   * @param {string?} id — id where to replace Block
+   * @param {boolean?} needToFocus - flag to focus inserted Block
+   */
+  public getBlockIndexByID(id: string): number {
+    const blocks = this.Editor.BlockManager.blocks;
+    let blockIndex;
+
+    blocks.forEach((block, index) => {
+      if (block.id === id) {
+        blockIndex = index;
+      }
+    });
+
+    console.warn('getBlockIndexByID',blockIndex);
+
+    if (typeof blockIndex === 'number') {
+      return blockIndex;
+    } else {
+      throw new Error('findBlockByID');
+    }
   }
 }

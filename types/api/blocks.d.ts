@@ -90,6 +90,7 @@ export interface Blocks {
    * @param {ToolConfig} config — Tool config
    * @param {number?} index — index where to insert new Block
    * @param {boolean?} needToFocus - flag to focus inserted Block
+   * @param {string?} id - insert Block's id
    */
   insert(
     type?: string,
@@ -97,6 +98,7 @@ export interface Blocks {
     config?: ToolConfig,
     index?: number,
     needToFocus?: boolean,
+    id?: string,
   ): void;
 
 }
