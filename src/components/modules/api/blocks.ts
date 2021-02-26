@@ -141,7 +141,7 @@ export default class BlocksAPI extends Module {
    * Clear Editor's area
    */
   public clear(): void {
-    this.Editor.BlockManager.clear(false);
+    this.Editor.BlockManager.clear(true);
     this.Editor.InlineToolbar.close();
   }
 
@@ -206,21 +206,13 @@ export default class BlocksAPI extends Module {
     data: BlockToolData = {},
     config: ToolConfig = {},
     index?: number,
-    needToFocus?: boolean,
-    replace?: boolean,
-    id: string = _.generateUuidv4()
+    needToFocus?: boolean
   ): void => {
-    if (id === "") {
-      id = _.generateUuidv4()
-    }
-
     this.Editor.BlockManager.insert({
-      id,
       tool: type,
       data,
       index,
       needToFocus,
-      replace,
     });
   }
 
@@ -235,6 +227,6 @@ export default class BlocksAPI extends Module {
   public insertNewBlock(): void {
     _.log('Method blocks.insertNewBlock() is deprecated and it will be removed in the next major release. ' +
       'Use blocks.insert() instead.', 'warn');
-    // this.insert();
+    this.insert();
   }
 }
