@@ -273,6 +273,7 @@ export default class BlockManager extends Module {
       newIndex = this.currentBlockIndex + (replace ? 0 : 1);
     }
 
+    console.log('insert block compose: ', id);
     const block = this.composeBlock({
       id,
       tool,
