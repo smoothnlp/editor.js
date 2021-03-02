@@ -1,7 +1,6 @@
 import Block from '../../src/components/block';
 import { BlockToolData } from '../tools';
 
-
 /**
  * Describes Editor`s I18n API
  */
