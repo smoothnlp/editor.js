@@ -290,7 +290,7 @@ export default class SmoothAPI extends Module {
     needToFocus?: boolean,
   ): void {
     const blockIndex = this.getBlockIndexByID(id);
-    console.warn('replaceBlockByID',blockIndex);
+
     this.replaceBlockByIndex(type, data, blockIndex, id, needToFocus);
   }
 
@@ -310,8 +310,6 @@ export default class SmoothAPI extends Module {
         blockIndex = index;
       }
     });
-
-    console.warn('getBlockIndexByID',blockIndex);
 
     if (typeof blockIndex === 'number') {
       return blockIndex;
