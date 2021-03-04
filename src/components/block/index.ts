@@ -218,7 +218,7 @@ export default class Block {
    * @param {boolean} options.readOnly - Read-Only flag
    */
   constructor({
-    id,
+    id = _.generateUuidv4(),
     name,
     data,
     Tool,
