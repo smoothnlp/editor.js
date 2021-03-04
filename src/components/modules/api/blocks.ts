@@ -210,6 +210,7 @@ export default class BlocksAPI extends Module {
     needToFocus?: boolean,
     id?: string
   ): void => {
+
     this.Editor.BlockManager.insert({
       tool: type,
       data,

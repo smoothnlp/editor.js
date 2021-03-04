@@ -260,9 +260,7 @@ export default class SmoothAPI extends Module {
     id?: string,
     needToFocus?: boolean,
   ): void {
-    if (!id) {
-      id = _.generateUuidv4();
-    }
+    id = id || _.generateUuidv4();
     const replace = true;
 
     this.Editor.BlockManager.insert({
@@ -314,7 +312,7 @@ export default class SmoothAPI extends Module {
     if (typeof blockIndex === 'number') {
       return blockIndex;
     } else {
-      throw new Error('findBlockByID');
+      throw new Error(`Can't find Block By ID:${id}`);
     }
   }
 }

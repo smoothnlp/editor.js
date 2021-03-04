@@ -218,7 +218,7 @@ export default class Toolbar extends Module<ToolbarNodes> {
       this.Editor.Toolbox.nodes.toolbox.style.transform = `translate3d(0, calc(${contentOffset}px - 50% ), 0)`;
     } else {
       toolbarY += blockHeight;
-      this.nodes.actions.style.transform = `translate3d(0, calc(-${blockHeight+28-contentOffset}px - 50%), 0)`;
+      this.nodes.actions.style.transform = `translate3d(0, calc(-${blockHeight + 28 - contentOffset}px - 50%), 0)`;
     }
 
     /**
