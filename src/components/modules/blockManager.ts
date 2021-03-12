@@ -280,11 +280,13 @@ export default class BlockManager extends Module {
     });
 
     this._blocks.insert(newIndex, block, replace);
-
+    // console.log('insert block', "needToFocus", needToFocus,newIndex,replace,this.currentBlockIndex,block,this.currentBlock);
     if (needToFocus) {
       this.currentBlockIndex = newIndex;
-    } else if (newIndex <= this.currentBlockIndex) {
-      this.currentBlockIndex++;
+    } else {
+      if (!replace && newIndex <= this.currentBlockIndex) {
+        this.currentBlockIndex++;
+      }
     }
 
     return block;

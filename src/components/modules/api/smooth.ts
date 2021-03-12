@@ -289,6 +289,8 @@ export default class SmoothAPI extends Module {
   ): void {
     const blockIndex = this.getBlockIndexByID(id);
 
+    console.log('insert block replaceBlockByID:', blockIndex);
+
     this.replaceBlockByIndex(type, data, blockIndex, id, needToFocus);
   }
 
