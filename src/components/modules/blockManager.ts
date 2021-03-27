@@ -12,6 +12,7 @@ import $ from '../dom';
 import * as _ from '../utils';
 import Blocks from '../blocks';
 import { BlockToolConstructable, BlockToolData, PasteEvent } from '../../../types';
+import SelectionUtils from '../selection';
 
 /**
  * @typedef {BlockManager} BlockManager
@@ -34,6 +35,13 @@ export default class BlockManager extends Module {
    * @param {number} newIndex - index of Block to set as current
    */
   public set currentBlockIndex(newIndex: number) {
+    console.log('currentBlockIndexchange : from', this._currentBlockIndex, 'to', newIndex);
+
+    /**
+     * 设置currentBlockIndex时候
+     * 先取消当前block的可选状态；
+     * 然后再设置新的block的可选状态
+     */
     if (this._blocks[this._currentBlockIndex]) {
       this._blocks[this._currentBlockIndex].willUnselect();
     }
@@ -219,7 +227,7 @@ export default class BlockManager extends Module {
    *
    * @returns {Block}
    */
-  public composeBlock({ tool, id = _.generateUuidv4(), data = {} }: {tool: string; id?: string; data?: BlockToolData}): Block {
+  public composeBlock({ tool, id = _.generateUuidv4(), data = {} }: { tool: string; id?: string; data?: BlockToolData }): Block {
     const readOnly = this.Editor.ReadOnly.isEnabled;
     const settings = this.Editor.Tools.getToolSettings(tool);
     const Tool = this.Editor.Tools.available[tool] as BlockToolConstructable;
@@ -273,6 +281,17 @@ export default class BlockManager extends Module {
       newIndex = this.currentBlockIndex + (replace ? 0 : 1);
     }
 
+    // 如果非replace的情况下，插入相同ID，则报错
+    if (!replace && id) {
+      const blockIndex = this.blocks.findIndex(block => block.id === id);
+
+      if (blockIndex >= 0) {
+        console.error('insert duplicated block:', id, this.blocks[blockIndex]);
+
+        return;
+      }
+    }
+
     const block = this.composeBlock({
       id,
       tool,
@@ -280,7 +299,7 @@ export default class BlockManager extends Module {
     });
 
     this._blocks.insert(newIndex, block, replace);
-    // console.log('insert block', "needToFocus", needToFocus,newIndex,replace,this.currentBlockIndex,block,this.currentBlock);
+
     if (needToFocus) {
       this.currentBlockIndex = newIndex;
     } else {
@@ -527,8 +546,8 @@ export default class BlockManager extends Module {
     }
 
     const nodes = this._blocks.nodes,
-        firstLevelBlock = element.closest(`.${Block.CSS.wrapper}`),
-        index = nodes.indexOf(firstLevelBlock as HTMLElement);
+      firstLevelBlock = element.closest(`.${Block.CSS.wrapper}`),
+      index = nodes.indexOf(firstLevelBlock as HTMLElement);
 
     if (index >= 0) {
       return this._blocks[index];
@@ -639,8 +658,9 @@ export default class BlockManager extends Module {
    *
    * @param {number} toIndex - index where to move Block
    * @param {number} fromIndex - index of Block to move
+   * @param {boolean} needFocus - index of Block to move
    */
-  public move(toIndex, fromIndex = this.currentBlockIndex): void {
+  public move(toIndex, fromIndex = this.currentBlockIndex, needFocus = true): void {
     // make sure indexes are valid and within a valid range
     if (isNaN(toIndex) || isNaN(fromIndex)) {
       _.log(`Warning during 'move' call: incorrect indices provided.`, 'warn');
@@ -654,11 +674,43 @@ export default class BlockManager extends Module {
       return;
     }
 
+    if (fromIndex === this.currentBlockIndex) {
+      // todo,重新对焦的到当前的位置
+      // console.log('move block 2', this.currentBlockIndex);
+      // const selection = window.getSelection();
+      // const range = selection.rangeCount ? selection.getRangeAt(0) : null;
+      this._blocks.move(toIndex, fromIndex);
+      this.currentBlockIndex = toIndex;
+      // setTimeout(()=> {
+      //   console.log('move block moverange',range);
+      //   selection.addRange(range);
+      // },50);
+
+      return;
+    }
+
     /** Move up current Block */
     this._blocks.move(toIndex, fromIndex);
 
     /** Now actual block moved so that current block index changed */
-    this.currentBlockIndex = toIndex;
+    if (needFocus) {
+      this.currentBlockIndex = toIndex;
+    } else {
+      /** keep the current Block index, prevent cursor disappear */
+
+      if (toIndex === this.currentBlockIndex) {
+        // 挪动的永远都是
+        console.log('move block 1', toIndex, 'to', fromIndex, this.currentBlockIndex, toIndex === this.currentBlockIndex, needFocus);
+        // 新的block顶替了当前的block的Index
+        if (fromIndex > this.currentBlockIndex) {
+          // console.log('move block 3', fromIndex > this.currentBlockIndex);
+          this.currentBlockIndex++;
+        } else if (fromIndex < this.currentBlockIndex) {
+          this.currentBlockIndex--;
+        }
+      }
+    }
+
   }
 
   /**

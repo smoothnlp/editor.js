@@ -13,4 +13,6 @@ export interface Smooth {
     replaceBlockByIndex(type: string, data: BlockToolData, index: number, id?: string, needToFocus?: boolean): void;
     replaceBlockByID(type: string, data: BlockToolData, id: string, needToFocus?: boolean): void;
     getBlockIndexByID(id: string): number;
+    removeBlockByID(id: string): void;
+    moveBlockToIndexByID(id: string, _toIndex: number, newData: BlockToolData): void ;
 }

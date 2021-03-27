@@ -33,7 +33,6 @@ export default class Blocks {
     this.workingArea = workingArea;
   }
 
-  
   /**
    * Get length of Block instances array
    *

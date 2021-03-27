@@ -6,6 +6,7 @@ import Block, { BlockToolAPI } from '../../block';
 import $ from '../../dom';
 import * as _ from './../../utils';
 import { BlockToolData, ToolConfig } from '../../../../types';
+// import BlockManager from '../blockManager';
 
 /**
  * @class BlocksAPI
@@ -25,6 +26,8 @@ export default class SmoothAPI extends Module {
       replaceBlockByIndex: (type: string, data: BlockToolData, _index: number, id?: string, needToFocus?: boolean): void => this.replaceBlockByIndex(type, data, _index, id, needToFocus),
       replaceBlockByID: (type: string, data: BlockToolData, id: string, needToFocus?: boolean): void => this.replaceBlockByID(type, data, id, needToFocus),
       getBlockIndexByID: (id: string): number => this.getBlockIndexByID(id),
+      removeBlockByID: (id: string): void => this.removeBlockByID(id),
+      moveBlockToIndexByID: (id: string, toIndex: number, data: BlockToolData): void => this.moveBlockToIndexByID(id, toIndex, data),
     };
   }
 
@@ -315,6 +318,61 @@ export default class SmoothAPI extends Module {
       return blockIndex;
     } else {
       throw new Error(`Can't find Block By ID:${id}`);
+    }
+  }
+
+  /**
+   * remove Block by index
+   * @param {string} id — Block‘s id which will be removed
+   *
+   */
+  public removeBlockByID(id: string): void {
+    const blockIndex = this.getBlockIndexByID(id);
+
+    if (blockIndex >= 0) {
+      this.Editor.BlockManager.removeBlock(blockIndex);
+    }
+  }
+
+  /**
+   * this move block by ID
+   *
+   * @param {string} id
+   * @param {number} _toIndex
+   * @param {BlockToolData} newData
+   * @param {boolean} needFocus
+   * @memberof SmoothAPI
+   */
+  public moveBlockToIndexByID(id: string, _toIndex: number, newData: BlockToolData, needFocus?: boolean): void {
+    // 比较数据是否一致，如果一致的话只做移动，如果不一致
+    const fromIndex = this.getBlockIndexByID(id);
+
+    if (needFocus === undefined) {
+      // 要被挪动的block的，已经处于对焦状态
+      needFocus = this.Editor.BlockManager.currentBlockIndex === fromIndex;
+    }
+    console.log('moveBlockToIndexByID',id,fromIndex,this.Editor.BlockManager.currentBlockIndex);
+    // console.log('moveBlockToIndexByID', id);
+    // 如果有block存在list中，则移动block
+    if (fromIndex >= 0) {
+      const block = this.Editor.BlockManager.blocks[fromIndex];
+
+      this.Editor.BlockManager.move(_toIndex, fromIndex, false);
+      // 比较block 值是否相等，如果不相等，则替换block;
+      let diff = false;
+
+      for (const key in block.data) {
+        if (newData[key] === block.data[key]) {
+          diff = true;
+          break;
+        }
+      }
+      if (diff) {
+        this.replaceBlockByID(block.name, newData, block.id, needFocus);
+      }
+    } else {
+      // 插入一个block，到目标位置
+      console.error('Not found block ', id, 'the block to be moved,so insert a new block to index =', _toIndex);
     }
   }
 }
