@@ -58,10 +58,23 @@ export default class SmoothAPI extends Module {
         BlockManager.removeBlock();
       }
 
-      Caret.setToBlock(
-        BlockManager.currentBlock,
-        index ? Caret.positions.END : Caret.positions.START
-      );
+            // Caret.setToBlock(
+      //   BlockManager.currentBlock,
+      //   index ? Caret.positions.END : Caret.positions.START
+      // );
+
+      // 优化block 删除，对于上方存在图片的情况，目前会丢失光标
+      var moveTargetBlock = BlockManager.currentBlock 
+      var targetBlockIndex = BlockManager.currentBlockIndex; 
+      while(targetBlockIndex>=0){
+        if(moveTargetBlock['name']!='image'){
+          break;
+        }
+        targetBlockIndex -- ;
+        moveTargetBlock = BlockManager.getBlockByIndex(targetBlockIndex);
+      }
+      Caret.setToBlock(moveTargetBlock, Caret.positions.END);
+
 
       /** Close Toolbar */
       this.Editor.Toolbar.close();
