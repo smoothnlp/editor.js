@@ -306,10 +306,19 @@ export default class BlockSelection extends Module {
 
     const savedData = await Promise.all(
       this.selectedBlocks.map((block) => {
-        block.id = _.generateUuidv4();
-        block.save();
+        // block.id = _.generateUuidv4();
+        // block.save();
+        return block.save()
       })
     );
+
+    const copySavedData = JSON.parse(JSON.stringify(savedData));
+    let newSavedData = [];
+    for(let i = 0 ; i < copySavedData.length;i++){
+      let dataItem = copySavedData[i];
+      dataItem['id']= _.generateUuidv4();
+      newSavedData.push(dataItem);
+    }
 
     const textPlain = Array.from(fakeClipboard.childNodes).map((node) => node.textContent)
       .join('\n\n');
@@ -317,7 +326,7 @@ export default class BlockSelection extends Module {
 
     e.clipboardData.setData('text/plain', textPlain);
     e.clipboardData.setData('text/html', textHTML);
-    e.clipboardData.setData(this.Editor.Paste.MIME_TYPE, JSON.stringify(savedData));
+    e.clipboardData.setData(this.Editor.Paste.MIME_TYPE, JSON.stringify(newSavedData));
   }
 
   /**
