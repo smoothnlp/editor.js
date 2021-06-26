@@ -58,11 +58,7 @@ export default class SmoothAPI extends Module {
         BlockManager.removeBlock();
       }
 
-<<<<<<< HEAD
       // Caret.setToBlock(
-=======
-            // Caret.setToBlock(
->>>>>>> next
       //   BlockManager.currentBlock,
       //   index ? Caret.positions.END : Caret.positions.START
       // );
@@ -78,10 +74,6 @@ export default class SmoothAPI extends Module {
         moveTargetBlock = BlockManager.getBlockByIndex(targetBlockIndex);
       }
       Caret.setToBlock(moveTargetBlock, Caret.positions.END);
-<<<<<<< HEAD
-=======
-
->>>>>>> next
 
       /** Close Toolbar */
       this.Editor.Toolbar.close();
