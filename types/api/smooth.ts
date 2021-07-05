@@ -6,7 +6,7 @@ import { BlockToolData } from '../tools';
  */
 export interface Smooth {
 
-    mergeBlock(): void;
+    mergeBlocks(): void;
     splitBlock(data: object): Block;
     backspace(event: KeyboardEvent, force: boolean): void;
     enter(event: KeyboardEvent, data: object): void;

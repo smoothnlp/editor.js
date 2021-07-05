@@ -8,6 +8,8 @@ import * as _ from './../../utils';
 import { BlockToolData, ToolConfig } from '../../../../types';
 // import BlockManager from '../blockManager';
 
+const EDITBLOCKNAMES = ['paragraph' ,'superlist', 'header','quote']
+
 /**
  * @class BlocksAPI
  * provides with methods working with Block
@@ -20,7 +22,7 @@ export default class SmoothAPI extends Module {
   public get methods(): Smooth {
     return {
       backspace: (e: KeyboardEvent, force: boolean): void => this.backspace(e, force),
-      mergeBlock: (): void => this.mergeBlocks(),
+      mergeBlocks: (): void => this.mergeBlocks(),
       splitBlock: (data: { text: string }): Block => this.splitBlock(data),
       enter: (e: KeyboardEvent, data: object): void => this.enter(e, data),
       replaceBlockByIndex: (type: string, data: BlockToolData, _index: number, id?: string, needToFocus?: boolean): void => this.replaceBlockByIndex(type, data, _index, id, needToFocus),
@@ -33,6 +35,13 @@ export default class SmoothAPI extends Module {
 
   /**
    * Handle backspace keydown on Block
+   * 
+   * called by paragraph, superlist first item first input
+   * 
+   * edit block types: paragraph, header, superlist, quote
+   * 
+   * If previous block is  not edit block, backspace first selected then delete it. 
+   * If current block is empty , it must be delete at the same time.
    *
    * @param {KeyboardEvent} event - keydown
    * @param {boolean} force - keydown
@@ -42,47 +51,40 @@ export default class SmoothAPI extends Module {
     const currentBlock = BlockManager.currentBlock;
     const tool = this.Editor.Tools.available[currentBlock.name];
 
-    /**
-     * Check if Block should be removed by current Backspace keydown
-     */
     if (currentBlock.selected || (currentBlock.isEmpty && currentBlock.currentInput === currentBlock.firstInput)) {
       event.preventDefault();
 
+      BlockManager.removeBlock(); // remove 当前
+
       const index = BlockManager.currentBlockIndex;
 
-      if (BlockManager.previousBlock && BlockManager.previousBlock.inputs.length === 0) {
-        /** If previous block doesn't contain inputs, remove it */
-        BlockManager.removeBlock(index - 1);
-      } else {
-        /** If block is empty, just remove it */
-        BlockManager.removeBlock();
-      }
+      if(EDITBLOCKNAMES.includes(BlockManager.currentBlock['name'])){
 
-      // Caret.setToBlock(
-      //   BlockManager.currentBlock,
-      //   index ? Caret.positions.END : Caret.positions.START
-      // );
+        /** Clear selection */
+        BlockSelection.clearSelection(event); 
+        // other can edit block
+        Caret.setToBlock( BlockManager.currentBlock,  Caret.positions.END);
 
-      // 优化block 删除，对于上方存在图片的情况，目前会丢失光标
-      var moveTargetBlock = BlockManager.currentBlock 
-      var targetBlockIndex = BlockManager.currentBlockIndex; 
-      while(targetBlockIndex>=0){
-        if(moveTargetBlock['name']!='image'){
-          break;
-        }
-        targetBlockIndex -- ;
-        moveTargetBlock = BlockManager.getBlockByIndex(targetBlockIndex);
+      }else{
+        this.Editor.BlockSelection.selectBlockByIndex(index);
       }
-      Caret.setToBlock(moveTargetBlock, Caret.positions.END);
 
       /** Close Toolbar */
       this.Editor.Toolbar.close();
+      return ; 
 
-      /** Clear selection */
-      BlockSelection.clearSelection(event);
-
-      return;
     }
+
+    // Check if caret at first and not empty block , 
+    if(Caret.isAtStart){
+      const preBlockIndex = BlockManager.currentBlockIndex - 1 
+      if(preBlockIndex >= 0  && !EDITBLOCKNAMES.includes(BlockManager.previousBlock['name'])){
+        event.preventDefault();
+        this.Editor.BlockSelection.selectBlockByIndex(preBlockIndex);
+        return;
+      }
+    }
+
 
     /**
      * Don't handle Backspaces when Tool sets enableLineBreaks to true.
