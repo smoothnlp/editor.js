@@ -54,6 +54,10 @@ export default class SmoothAPI extends Module {
     if (currentBlock.selected || (currentBlock.isEmpty && currentBlock.currentInput === currentBlock.firstInput)) {
       event.preventDefault();
 
+      if(BlockManager.currentBlockIndex === 0 && BlockManager.currentBlock['name'] === 'paragraph'){ 
+        return;
+      }
+
       BlockManager.removeBlock(); // remove 当前
 
       const index = BlockManager.currentBlockIndex;
