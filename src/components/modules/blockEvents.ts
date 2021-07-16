@@ -303,38 +303,87 @@ export default class BlockEvents extends Module {
    * @param {KeyboardEvent} event - keydown
    */
   private backspace(event: KeyboardEvent): void {
+    console.log("editorjsBackspace event")
     const { BlockManager, BlockSelection, Caret } = this.Editor;
     const currentBlock = BlockManager.currentBlock;
     const tool = this.Editor.Tools.available[currentBlock.name];
-
+    const EDITBLOCKNAMES = ['paragraph' ,'superlist', 'header','quote']
     /**
      * Check if Block should be removed by current Backspace keydown
      */
-    if (currentBlock.selected || (currentBlock.isEmpty && currentBlock.currentInput === currentBlock.firstInput)) {
-      event.preventDefault();
 
+    if(currentBlock.selected){
+      event.preventDefault();
+      /** after delete ,caret set to the empty block */
       const index = BlockManager.currentBlockIndex;
 
-      if (BlockManager.previousBlock && BlockManager.previousBlock.inputs.length === 0) {
-        /** If previous block doesn't contain inputs, remove it */
-        BlockManager.removeBlock(index - 1);
-      } else {
-        /** If block is empty, just remove it */
-        BlockManager.removeBlock();
-      }
-
+      BlockManager.removeBlock();
       Caret.setToBlock(
-        BlockManager.currentBlock,
-        index ? Caret.positions.END : Caret.positions.START
-      );
+          BlockManager.currentBlock,
+          index ? Caret.positions.END : Caret.positions.START
+        );
 
       /** Close Toolbar */
       this.Editor.Toolbar.close();
 
       /** Clear selection */
       BlockSelection.clearSelection(event);
+      return;
+    }
+
+    if ((currentBlock.isEmpty && currentBlock.currentInput === currentBlock.firstInput)) {
+      event.preventDefault();
+
+      // const index = BlockManager.currentBlockIndex;
+
+      // if (BlockManager.previousBlock && BlockManager.previousBlock.inputs.length === 0) {
+      //   /** If previous block doesn't contain inputs, remove it */
+      //   BlockManager.removeBlock(index - 1);
+      // } else {
+      //   /** If block is empty, just remove it */
+      //   BlockManager.removeBlock();
+      // }
+
+      /** remove current block  */
+      BlockManager.removeBlock();
+      
+      /** update current block index after delete  */
+      const index = BlockManager.currentBlockIndex;
+      
+      if(EDITBLOCKNAMES.includes(BlockManager.currentBlock['name'])){
+
+        /** Clear selection */
+        BlockSelection.clearSelection(event); 
+        console.log("editorjsBackspace event", BlockManager.currentBlock)
+        // other can edit block
+        Caret.setToBlock( BlockManager.currentBlock,  Caret.positions.END);
+
+      }else{
+        this.Editor.BlockSelection.selectBlockByIndex(index);
+      }
+
+      // Caret.setToBlock(
+      //   BlockManager.currentBlock,
+      //   index ? Caret.positions.END : Caret.positions.START
+      // );
+
+      /** Close Toolbar */
+      this.Editor.Toolbar.close();
+
+      /** Clear selection */
+      // BlockSelection.clearSelection(event);
 
       return;
+    }
+
+    // Check if caret at first and not empty block , 
+    if(Caret.isAtStart){
+      const preBlockIndex = BlockManager.currentBlockIndex - 1 
+      if(preBlockIndex >= 0  && !EDITBLOCKNAMES.includes(BlockManager.previousBlock['name'])){
+        event.preventDefault();
+        this.Editor.BlockSelection.selectBlockByIndex(preBlockIndex);
+        return;
+      }
     }
 
     /**
